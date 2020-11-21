@@ -86,8 +86,6 @@ $ microk8s enable gpu.
 $ microk8s enable kubeflow
 ```
 
-- https://35.206.228.182:30947
-
 #### 설치이슈 1 : oidc-gatekeeper
 
 - Kubeflow can't be enabled after Nov. 2020 microk8s releases (always timeout) #1754 https://github.com/ubuntu/microk8s/issues/1754
@@ -128,6 +126,19 @@ red_suh@redsuh:~$
 ### Kubeflow 접속
 
 - 어캐 하는지 모르겠다 https://microk8s.io/docs/addon-kubeflow
+
+### kfctl로 Kubeflow 설치 
+
+1. kubectl을 별도로 설치한다
+2. 8080포트로 proxy를 띄운다 
+   - [쿠버네티스 API를 사용하여 클러스터에 접근하기 | Kubernetes](https://kubernetes.io/ko/docs/tasks/administer-cluster/access-cluster-api/#kubectl-프록시-사용)
+
+```bash
+kubectl proxy --port=8080 &
+```
+
+- 이하 "**Minikube + Kubeflow 설치**"의 "**Kubeflow 설치 - kfctl**" 와 동일하게 진행
+- 일단 설치는 잘 된다. 맘에 듬
 
 # Minikube + Kubeflow 설치
 
@@ -196,7 +207,7 @@ $ kubectl proxy --accept-hosts=.* --address=0.0.0.0 &
 
 - https://www.youtube.com/watch?v=-TGBsb0oMeA
 
-### Kubeflow 설치
+### Kubeflow 설치 - kfctl
 
 - [Kubeflow releases page](https://github.com/kubeflow/kfctl/releases/).
 
