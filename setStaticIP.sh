@@ -3,7 +3,7 @@
  MY_GW=$(ip r | awk '/default/{print $3}')
 MY_MAC=$(ip a show dev eth0 | awk '/link\/eth/{print $2}')
 
-cat << EOF # > /etc/netplan/50-cloud-init.yaml
+cat << EOF > /etc/netplan/50-cloud-init.yaml
 network:
  version: 2
  renderer: networkd
@@ -19,5 +19,5 @@ network:
      match:
        macaddress: $MY_MAC
 EOF
-#netplan apply
-#curl www.google.com
+netplan apply
+# curl www.google.com
