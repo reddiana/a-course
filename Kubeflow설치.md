@@ -1,4 +1,4 @@
-# A교육과정-KF
+# A교육과정 - Kubeflow 설치
 
 [TOC]
 
@@ -107,8 +107,6 @@ $ microk8s kubectl edit -n kubeflow deployment.apps/oidc-gatekeeper
           value: /authservice/
 ```
 
-
-
 #### 설치이슈 2
 
 - https://github.com/ubuntu/microk8s/issues/1669#issuecomment-714489692
@@ -130,21 +128,6 @@ red_suh@redsuh:~$
 ### Kubeflow 접속
 
 - 어캐 하는지 모르겠다 https://microk8s.io/docs/addon-kubeflow
-
-- [ ] MLOps 개요 교재추가
-- [ ] Kale 교재추가
-  
-  - [ ] https://github.com/sds-arch-cert/kubeflow-edu.git 
-  - [ ] Kale 추가된 image 작성
-- [ ] 실사례 pipeline 예제 (당근마켓 등)
-- [ ] TFServing으로 KFServing 활용 예제
-- [ ] KF의 K8s 리소스 정리
-  
-  - [ ] Role 정리 https://www.kubeflow.org/docs/notebooks/submit-kubernetes/
-
-
-
-
 
 # Minikube + Kubeflow 설치
 
@@ -312,6 +295,19 @@ CMD ["sh","-c", "jupyter lab --notebook-dir=/home/${NB_USER} --ip=0.0.0.0 --no-b
 
 # kubectl edit cm jupyter-web-app-config -n kubeflow
 ```
+
+# TODO
+
+- [ ] MLOps 개요 교재추가
+- [ ] Kale 교재추가
+
+  - [ ] https://github.com/sds-arch-cert/kubeflow-edu.git 
+  - [ ] Kale 추가된 image 작성
+- [ ] 실사례 pipeline 예제 (당근마켓 등)
+- [ ] TFServing으로 KFServing 활용 예제
+- [ ] KF의 K8s 리소스 정리
+
+  - [ ] Role 정리 https://www.kubeflow.org/docs/notebooks/submit-kubernetes/
 
 
 
