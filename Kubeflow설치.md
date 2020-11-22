@@ -11,22 +11,22 @@
   - https://www.kubeflow.org/docs/started/workstation/getting-started-multipass/
   
 ```bash
-$ sudo apt update
-$ #sudo apt install -y snapd
+sudo apt update
+#sudo apt install -y snapd
 
 # Install MicroK8s with Snap by running the following command:
-$ sudo snap install microk8s --classic
+sudo snap install microk8s --classic
 
-$ sudo usermod -a -G microk8s $(whoami)
-$ sudo chown -f -R $(whoami) ~/.kube
+sudo usermod -a -G microk8s $(whoami)
+sudo chown -f -R $(whoami) ~/.kube
 
 # 로그아웃하고 재로그인
 
 # Verify that MicroK8s is running:deployment.apps/hello-world
-$ microk8s status --wait-ready
+microk8s status --wait-ready
 
 # Having installed MicroK8s, you can now enable common services on your MicroK8s deployment. To do that, run the following command:
-$ microk8s enable dns dashboard storage registry
+microk8s enable dns dashboard storage registry
 ```
 
 ```sh
@@ -41,21 +41,21 @@ alias kww='watch "microk8s kubectl get pod -A | grep -v Running"'
 ### K8s Dashboard 접속
 
 ```bash
-$ microk8s enable dashboard
+microk8s enable dashboard
 ```
 
 #### 방법1. kubectl proxy
 
 ```bash
-$ microk8s kubectl proxy --accept-hosts=.* --address=0.0.0.0 &
+microk8s kubectl proxy --accept-hosts=.* --address=0.0.0.0 &
 ```
 
 - http://35.206.221.225:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
 
 #### 방법2. NodePort <- 채택
 
-```
-$ microk8s kubectl edit -n kube-system service/kubernetes-dashboard
+```bash
+microk8s kubectl edit -n kube-system service/kubernetes-dashboard
 ```
 
 - https://35.206.228.182:30443
@@ -76,14 +76,14 @@ eyJhbGciOiJSUzI1NiIsImtpZCI6IlRpQ0tqQ2FVd2xOR3NkR3hnVF9IR056UTZpZXFENVdPZlNpR3NZ
 
 ```bash
 # Optional: To enable NVIDIA GPU hardware support, also run 
-$ microk8s enable gpu.
+microk8s enable gpu.
 ```
 
 ### Kubeflow 설치
 
 ```bash
 # Deploy Kubeflow by running this command:
-$ microk8s enable kubeflow
+microk8s enable kubeflow
 ```
 
 #### 설치이슈 1 : oidc-gatekeeper
@@ -96,7 +96,7 @@ $ microk8s enable kubeflow
 - oidc-gatekeeper deployment의 환경변수 부분에 AUTHSERVICE_URL_PREFIX 추가
 
 ```bash
-$ microk8s kubectl edit -n kubeflow deployment.apps/oidc-gatekeeper
+microk8s kubectl edit -n kubeflow deployment.apps/oidc-gatekeeper
 ...
     spec:
       containers:
@@ -194,14 +194,20 @@ minikube start \
 ### K8s Dashboard 접속
 
 ```bash
-$ minikube addons enable dashboard
-$ minikube addons list
-$ minikube dashboard &
-$ kubectl proxy --address='0.0.0.0' --disable-filter=true &
+minikube addons enable dashboard
+minikube addons list
+
+# 이건 한번만
+minikube dashboard &
+
+# 이건 항상
+kubectl proxy --address='0.0.0.0' --disable-filter=true &
 
 # 이건 뭐지?
-$ kubectl proxy --accept-hosts=.* --address=0.0.0.0 &
+kubectl proxy --accept-hosts=.* --address=0.0.0.0 &
 ```
+
+- http://XX.XX.XX.XX:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
 
 이거 봐야하나
 
