@@ -63,8 +63,8 @@ microk8s kubectl edit -n kube-system service/kubernetes-dashboard
 #### 인증
 
 ```bash
-$ token=$(microk8s kubectl -n kube-system get secret | grep default-token | cut -d " " -f1)
-$ microk8s kubectl -n kube-system describe secret $token
+token=$(microk8s kubectl -n kube-system get secret | grep default-token | cut -d " " -f1)
+microk8s kubectl -n kube-system describe secret $token
 ```
 
 ```
@@ -183,11 +183,12 @@ sudo install minikube-linux-amd64 /usr/local/bin/minikube
 
 ```SHELL
 minikube start \
-	--driver=docker \
-	--cpus 6 --memory 14336 --disk-size=150g \	
 	--extra-config=apiserver.service-account-issuer=api \
 	--extra-config=apiserver.service-account-signing-key-file=/var/lib/minikube/certs/apiserver.key \
-	--extra-config=apiserver.service-account-api-audiences=api
+	--extra-config=apiserver.service-account-api-audiences=api \
+	--cpus 6 --memory 14336 --disk-size=200g 
+
+# 	--driver=docker \
 #	--cpus 6 --memory 12288 --disk-size=120g \	
 ```
 
@@ -207,7 +208,8 @@ kubectl proxy --address='0.0.0.0' --disable-filter=true &
 kubectl proxy --accept-hosts=.* --address=0.0.0.0 &
 ```
 
-- http://XX.XX.XX.XX:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+- http://kubeflow.test:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+- http://.test:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
 
 이거 봐야하나
 
@@ -219,12 +221,21 @@ kubectl proxy --accept-hosts=.* --address=0.0.0.0 &
 
 ##### Version
 
+[Releases · kubeflow/kfctl (github.com)](https://github.com/kubeflow/kfctl/releases/)
+
+[manifests/kfdef at master · kubeflow/manifests (github.com)](https://github.com/kubeflow/manifests/tree/master/kfdef)
+
+
+
 - v1.1.1
   - kfctl: https://github.com/kubeflow/kfctl/releases/download/v1.1.0/kfctl_v1.1.0-0-g9a3621e_linux.tar.gz
   - config-yaml: https://github.com/kubeflow/manifests/raw/master/kfdef/kfctl_k8s_istio.v1.1.0.yaml
 - v.1.0.2
   - kfctl: https://github.com/kubeflow/kfctl/releases/download/v1.0.2/kfctl_v1.0.2-0-ga476281_linux.tar.gz
   - config-yaml: https://github.com/kubeflow/manifests/raw/master/kfdef/kfctl_k8s_istio.v1.0.2.yaml
+- v.1.2.0
+  - kfctl: https://github.com/kubeflow/kfctl/releases/download/v1.2.0/kfctl_v1.2.0-0-gbc038f9_linux.tar.gz
+  - config-yaml: https://github.com/kubeflow/manifests/raw/master/kfdef/kfctl_k8s_istio.v1.2.0.yaml
 
 ##### 설치
 
@@ -236,13 +247,15 @@ mkdir -p $KF_HOME
 cd $KF_HOME
 
 rm -f ./kfctl*
-wget https://github.com/kubeflow/kfctl/releases/download/v1.0.2/kfctl_v1.0.2-0-ga476281_linux.tar.gz
+# wget https://github.com/kubeflow/kfctl/releases/download/v1.0.2/kfctl_v1.0.2-0-ga476281_linux.tar.gz
+wget https://github.com/kubeflow/kfctl/releases/download/v1.2.0/kfctl_v1.2.0-0-gbc038f9_linux.tar.gz
 tar -xvf kfctl_*.tar.gz	
 # 
 export PATH=$PATH:$KF_HOME
 
 export KF_DIR=${KF_HOME}/${KF_NAME}
-export CONFIG_URI=https://github.com/kubeflow/manifests/raw/master/kfdef/kfctl_k8s_istio.v1.0.2.yaml
+# export CONFIG_URI=https://github.com/kubeflow/manifests/raw/master/kfdef/kfctl_k8s_istio.v1.0.2.yaml
+export CONFIG_URI=https://github.com/kubeflow/manifests/raw/master/kfdef/kfctl_k8s_istio.v1.2.0.yaml
 
 mkdir -p ${KF_DIR}
 cd ${KF_DIR}
