@@ -263,7 +263,12 @@ kfctl apply -V -f ${CONFIG_URI}
 
 ```
 
-
+##### minikube로 리다이렉션
+```bash
+sudo iptables -t nat -A PREROUTING -p tcp --dport 31380 -j DNAT --to-destination 192.168.49.2:31380
+sudo iptables -t nat -A PREROUTING -p tcp --dport 9000 -j DNAT --to-destination 192.168.49.2:32477
+sudo iptables -t nat -L -n
+```
 
 
 
