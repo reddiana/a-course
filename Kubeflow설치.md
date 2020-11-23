@@ -264,6 +264,36 @@ kfctl apply -V -f ${CONFIG_URI}
 ```
 
 ##### minikube로 리다이렉션
+```
+|----------------------|----------------------------------------------|---------------------------|---------------------------|
+|      NAMESPACE       |                     NAME                     |        TARGET PORT        |            URL            |
+|----------------------|----------------------------------------------|---------------------------|---------------------------|
+| istio-system         | istio-ingressgateway                         | status-port/15020         | http://192.168.49.2:32688 |
+|                      |                                              | http2/80 https/443        | http://192.168.49.2:31380 |
+|                      |                                              | tcp/31400                 | http://192.168.49.2:31390 |
+|                      |                                              | https-kiali/15029         | http://192.168.49.2:31400 |
+|                      |                                              | https-prometheus/15030    | http://192.168.49.2:30111 |
+|                      |                                              | https-grafana/15031       | http://192.168.49.2:30029 |
+|                      |                                              | https-tracing/15032       | http://192.168.49.2:32262 |
+|                      |                                              | tls/15443                 | http://192.168.49.2:30734 |
+|                      |                                              |                           | http://192.168.49.2:30159 |
+| istio-system         | kfserving-ingressgateway                     | status-port/15020         | http://192.168.49.2:31889 |
+|                      |                                              | http2/80 https/443        | http://192.168.49.2:32380 |
+|                      |                                              | tcp/31400                 | http://192.168.49.2:32390 |
+|                      |                                              | tcp-pilot-grpc-tls/15011  | http://192.168.49.2:32400 |
+|                      |                                              | tcp-citadel-grpc-tls/8060 | http://192.168.49.2:32727 |
+|                      |                                              | tcp-dns-tls/853           | http://192.168.49.2:31035 |
+|                      |                                              | https-kiali/15029         | http://192.168.49.2:32692 |
+|                      |                                              | http2-prometheus/15030    | http://192.168.49.2:30109 |
+|                      |                                              | http2-grafana/15031       | http://192.168.49.2:30781 |
+|                      |                                              | https-tracing/15032       | http://192.168.49.2:31931 |
+|                      |                                              | tls/15443                 | http://192.168.49.2:30384 |
+|                      |                                              |                           | http://192.168.49.2:30147 |
+| kubeflow             | argo-ui                                      |                        80 | http://192.168.49.2:32335 |
+| kubeflow             | minio-service                                |                      9000 | http://192.168.49.2:32477 |
+| kubernetes-dashboard | kubernetes-dashboard                         |                        80 | http://192.168.49.2:30443 |
+|----------------------|----------------------------------------------|---------------------------|---------------------------|
+```
 ```bash
 sudo iptables -t nat -A PREROUTING -p tcp --dport 31380 -j DNAT --to-destination 192.168.49.2:31380
 sudo iptables -t nat -A PREROUTING -p tcp --dport 9000 -j DNAT --to-destination 192.168.49.2:32477
