@@ -1,6 +1,35 @@
-# A교육과정 - Kubeflow 설치
+A교육과정 - Kubeflow 설치
 
 [TOC]
+
+# 설치 다익스트라
+
+| 방법   | 버전  | MicroK8S (K8s v1.19.3)                                       | Minikube (K8s v1.19.4)                                       |
+| ------ | ----- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| enable |       | [workaround] deployment.apps/oidc-gatekeeper env AUTHSERVICE_URL_PREFIX<br />설치 마지막 'microk8s-kubectl.wrapper', 'delete' 에러는 무시<br />근데 접속하는 법을 모르겠다. LoadBalancer | n/a                                                          |
+| kfctl  | 1.0.2 |                                                              | Notebook 생성 안됨: kfserving-webhook-server-service:  use GODEBUG=x509ignoreCN=0 |
+|        | 1.1.1 |                                                              |                                                              |
+|        | 1.2.0 |                                                              |                                                              |
+
+# 접속
+
+|                   | 접속주소                                                     | 설치                                   | Expose   |
+| ----------------- | ------------------------------------------------------------ | -------------------------------------- | -------- |
+| K8s 대쉬보드      | https://kubeflow.sds:30443                                   | microk8s enable dashboard  / RBAC 토큰   | NodePort |
+|                   | http://red-minikube-kf-102:8001/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/ | minikube addons enable dashboard / 인증없음 |     minikube kubectl proxy      |
+|                   | http://red-minikube-kf-102:32080                             | minikube addons enable dashboard / 인증없음 | NodePort + NAT |
+| Kubeflow 대쉬보드 |                                                              |                                        |          |
+|  | http://red-minikube-kf-102:31380 | kfctl / 1.0.2 | NodePort + NAT / 근데 Notebook 생성 안됨: x509 |
+| minio             | http://red-minikube-kf-102:9000 | kfctl / 1.0.2 | NodePort + NAT |
+
+#### 인증
+
+```bash
+microk8s kubectl -n kube-system describe secret $(microk8s kubectl -n kube-system get secret | grep default-token | cut -d " " -f1)
+
+kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep default-token | cut -d " " -f1)
+
+```
 
 # MicroK8S + Kubeflow 설치 
 
@@ -11,9 +40,6 @@
   - https://www.kubeflow.org/docs/started/workstation/getting-started-multipass/
   
 ```bash
-sudo apt update
-#sudo apt install -y snapd
-
 # Install MicroK8s with Snap by running the following command:
 sudo snap install microk8s --classic
 
@@ -29,13 +55,19 @@ microk8s status --wait-ready
 microk8s enable dns dashboard storage registry
 ```
 
+### Alias
+
 ```sh
+sudo su
+cat << EOF >> /etc/bash.bashrc
 set -o vi
 alias d='docker'
 alias k='microk8s kubectl'
 alias kubectl='microk8s kubectl'
 alias kw='watch "microk8s kubectl get pod -A"'
 alias kww='watch "microk8s kubectl get pod -A | grep -v Running"'
+EOF
+exit
 ```
 
 ### K8s Dashboard 접속
@@ -58,13 +90,17 @@ microk8s kubectl proxy --accept-hosts=.* --address=0.0.0.0 &
 microk8s kubectl edit -n kube-system service/kubernetes-dashboard
 ```
 
-- https://35.206.228.182:30443
+- https://red-microk8s:30443
+- https://kubeflow.sds:30443
 
 #### 인증
 
 ```bash
 token=$(microk8s kubectl -n kube-system get secret | grep default-token | cut -d " " -f1)
 microk8s kubectl -n kube-system describe secret $token
+
+microk8s kubectl -n kube-system describe secret $(microk8s kubectl -n kube-system get secret | grep default-token | cut -d " " -f1)
+
 ```
 
 ```
@@ -79,7 +115,7 @@ eyJhbGciOiJSUzI1NiIsImtpZCI6IlRpQ0tqQ2FVd2xOR3NkR3hnVF9IR056UTZpZXFENVdPZlNpR3NZ
 microk8s enable gpu.
 ```
 
-### Kubeflow 설치
+### enable kubeflow 설치
 
 ```bash
 # Deploy Kubeflow by running this command:
@@ -179,6 +215,21 @@ curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-
 sudo install minikube-linux-amd64 /usr/local/bin/minikube
 ```
 
+### Alias
+
+```sh
+sudo su
+cat << EOF >> /etc/bash.bashrc
+set -o vi
+alias d='docker'
+alias k='kubectl'
+alias kubectl='kubectl'
+alias kw='watch "kubectl get pod -A"'
+alias kww='watch "kubectl get pod -A | grep -v Running"'
+EOF
+exit
+```
+
 ### Start minikube
 
 ```SHELL
@@ -200,7 +251,11 @@ minikube addons list
 
 # 이건 한번만
 minikube dashboard &
+```
 
+kubectl proxy 사용
+
+```bash
 # 이건 항상
 kubectl proxy --address='0.0.0.0' --disable-filter=true &
 
@@ -208,34 +263,38 @@ kubectl proxy --address='0.0.0.0' --disable-filter=true &
 kubectl proxy --accept-hosts=.* --address=0.0.0.0 &
 ```
 
-- http://kubeflow.test:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
-- http://.test:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+- http://red-minikube-kf-102:8001/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/
 
-이거 봐야하나
+NodePort 사용
 
-- https://www.youtube.com/watch?v=-TGBsb0oMeA
+```bash
+minikube kubectl edit svc -n kubernetes-dashboard kubernetes-dashboard
+
+# minikube는 container 기반이므로 nat redirect를 해줘야한다
+minikube service -n kubernetes-dashboard kubernetes-dashboard
+|----------------------|----------------------|-------------|---------------------------|
+|      NAMESPACE       |         NAME         | TARGET PORT |            URL            |
+|----------------------|----------------------|-------------|---------------------------|
+| kubernetes-dashboard | kubernetes-dashboard |          80 | http://192.168.49.2:32080 |
+|----------------------|----------------------|-------------|---------------------------|
+
+sudo iptables -t nat -L -n
+sudo iptables -t nat -A PREROUTING -p tcp --dport 32080 -j DNAT --to-destination 192.168.49.2:32080
+sudo iptables -t nat -L -n
+
+# 방화벽 잊지말자
+sudo ufw disable
+```
+
+- http://red-minikube-kf-102:32080
+  - curl: (7) Failed to connect to localhost port 32080: Connection refused
 
 ### Kubeflow 설치 - kfctl
 
-- [Kubeflow releases page](https://github.com/kubeflow/kfctl/releases/).
+##### Version 확인
 
-##### Version
-
-[Releases · kubeflow/kfctl (github.com)](https://github.com/kubeflow/kfctl/releases/)
-
-[manifests/kfdef at master · kubeflow/manifests (github.com)](https://github.com/kubeflow/manifests/tree/master/kfdef)
-
-
-
-- v1.1.1
-  - kfctl: https://github.com/kubeflow/kfctl/releases/download/v1.1.0/kfctl_v1.1.0-0-g9a3621e_linux.tar.gz
-  - config-yaml: https://github.com/kubeflow/manifests/raw/master/kfdef/kfctl_k8s_istio.v1.1.0.yaml
-- v.1.0.2
-  - kfctl: https://github.com/kubeflow/kfctl/releases/download/v1.0.2/kfctl_v1.0.2-0-ga476281_linux.tar.gz
-  - config-yaml: https://github.com/kubeflow/manifests/raw/master/kfdef/kfctl_k8s_istio.v1.0.2.yaml
-- v.1.2.0
-  - kfctl: https://github.com/kubeflow/kfctl/releases/download/v1.2.0/kfctl_v1.2.0-0-gbc038f9_linux.tar.gz
-  - config-yaml: https://github.com/kubeflow/manifests/raw/master/kfdef/kfctl_k8s_istio.v1.2.0.yaml
+- [Releases · kubeflow/kfctl (github.com)](https://github.com/kubeflow/kfctl/releases/)
+- [manifests/kfdef at master · kubeflow/manifests (github.com)](https://github.com/kubeflow/manifests/tree/master/kfdef)
 
 ##### 설치
 
@@ -247,15 +306,17 @@ mkdir -p $KF_HOME
 cd $KF_HOME
 
 rm -f ./kfctl*
-# wget https://github.com/kubeflow/kfctl/releases/download/v1.0.2/kfctl_v1.0.2-0-ga476281_linux.tar.gz
-wget https://github.com/kubeflow/kfctl/releases/download/v1.2.0/kfctl_v1.2.0-0-gbc038f9_linux.tar.gz
+wget https://github.com/kubeflow/kfctl/releases/download/v1.0.2/kfctl_v1.0.2-0-ga476281_linux.tar.gz
+# wget https://github.com/kubeflow/kfctl/releases/download/v1.1.0/kfctl_v1.1.0-0-g9a3621e_linux.tar.gz
+# wget https://github.com/kubeflow/kfctl/releases/download/v1.2.0/kfctl_v1.2.0-0-gbc038f9_linux.tar.gz
 tar -xvf kfctl_*.tar.gz	
 # 
 export PATH=$PATH:$KF_HOME
 
 export KF_DIR=${KF_HOME}/${KF_NAME}
-# export CONFIG_URI=https://github.com/kubeflow/manifests/raw/master/kfdef/kfctl_k8s_istio.v1.0.2.yaml
-export CONFIG_URI=https://github.com/kubeflow/manifests/raw/master/kfdef/kfctl_k8s_istio.v1.2.0.yaml
+export CONFIG_URI=https://github.com/kubeflow/manifests/raw/master/kfdef/kfctl_k8s_istio.v1.0.2.yaml
+# export https://github.com/kubeflow/manifests/raw/master/kfdef/kfctl_k8s_istio.v1.1.0.yaml
+# export CONFIG_URI=https://github.com/kubeflow/manifests/raw/master/kfdef/kfctl_k8s_istio.v1.2.0.yaml
 
 mkdir -p ${KF_DIR}
 cd ${KF_DIR}
@@ -263,50 +324,62 @@ kfctl apply -V -f ${CONFIG_URI}
 
 ```
 
-##### minikube로 리다이렉션
-```
-|----------------------|----------------------------------------------|---------------------------|---------------------------|
-|      NAMESPACE       |                     NAME                     |        TARGET PORT        |            URL            |
-|----------------------|----------------------------------------------|---------------------------|---------------------------|
-| istio-system         | istio-ingressgateway                         | status-port/15020         | http://192.168.49.2:32688 |
-|                      |                                              | http2/80 https/443        | http://192.168.49.2:31380 |
-|                      |                                              | tcp/31400                 | http://192.168.49.2:31390 |
-|                      |                                              | https-kiali/15029         | http://192.168.49.2:31400 |
-|                      |                                              | https-prometheus/15030    | http://192.168.49.2:30111 |
-|                      |                                              | https-grafana/15031       | http://192.168.49.2:30029 |
-|                      |                                              | https-tracing/15032       | http://192.168.49.2:32262 |
-|                      |                                              | tls/15443                 | http://192.168.49.2:30734 |
-|                      |                                              |                           | http://192.168.49.2:30159 |
-| istio-system         | kfserving-ingressgateway                     | status-port/15020         | http://192.168.49.2:31889 |
-|                      |                                              | http2/80 https/443        | http://192.168.49.2:32380 |
-|                      |                                              | tcp/31400                 | http://192.168.49.2:32390 |
-|                      |                                              | tcp-pilot-grpc-tls/15011  | http://192.168.49.2:32400 |
-|                      |                                              | tcp-citadel-grpc-tls/8060 | http://192.168.49.2:32727 |
-|                      |                                              | tcp-dns-tls/853           | http://192.168.49.2:31035 |
-|                      |                                              | https-kiali/15029         | http://192.168.49.2:32692 |
-|                      |                                              | http2-prometheus/15030    | http://192.168.49.2:30109 |
-|                      |                                              | http2-grafana/15031       | http://192.168.49.2:30781 |
-|                      |                                              | https-tracing/15032       | http://192.168.49.2:31931 |
-|                      |                                              | tls/15443                 | http://192.168.49.2:30384 |
-|                      |                                              |                           | http://192.168.49.2:30147 |
-| kubeflow             | argo-ui                                      |                        80 | http://192.168.49.2:32335 |
-| kubeflow             | minio-service                                |                      9000 | http://192.168.49.2:32477 |
-| kubernetes-dashboard | kubernetes-dashboard                         |                        80 | http://192.168.49.2:30443 |
-|----------------------|----------------------------------------------|---------------------------|---------------------------|
-```
+##### minikube로 NAT 리다이렉션
 ```bash
-sudo iptables -t nat -A PREROUTING -p tcp --dport 31380 -j DNAT --to-destination 192.168.49.2:31380
-sudo iptables -t nat -A PREROUTING -p tcp --dport 9000 -j DNAT --to-destination 192.168.49.2:32477
 sudo iptables -t nat -L -n
+
+# k8s dashboard
+minikube service -n kubernetes-dashboard kubernetes-dashboard
+sudo iptables -t nat -A PREROUTING -p tcp --dport 32080 -j DNAT --to-destination 192.168.49.2:32080
+
+# kfserving-ingressgateway 
+minikube service -n istio-system istio-ingressgateway
+sudo iptables -t nat -A PREROUTING -p tcp --dport 31380 -j DNAT --to-destination 192.168.49.2:31380
+
+# minio-service  
+# k edit service -n kubeflow minio-service
+minikube service -n kubeflow minio-service
+sudo iptables -t nat -A PREROUTING -p tcp --dport 9000 -j DNAT --to-destination 192.168.49.2:32477
+
+sudo iptables -t nat -L -n
+
+# 방화벽 잊지말자
+
+# 이거 안먹네
+sudo service netfilter-persistent save
 ```
 
 
 
+### 설치 이슈
 
+노트북 생성 시, 아래 현상 발생
 
+```
+k describe -n myspace     statefulset.apps/red-1124-0144
+...
+Events:
+  Type     Reason        Age                  From                    Message
+  ----     ------        ----                 ----                    -------
+  Warning  FailedCreate  27s (x15 over 109s)  statefulset-controller  create Pod red-1124-0144-0 in StatefulSet red-1124-0144 failed error: Internal error occurred: failed calling webhook "inferenceservice.kfserving-webhook-server.pod-mutator": Post "https://kfserving-webhook-server-service.kubeflow.svc:443/mutate-pods?timeout=30s": x509: certificate relies on legacy Common Name field, use SANs or temporarily enable Common Name matching with GODEBUG=x509ignoreCN=0
+```
 
+- [Error X509 : Internal error occurred: failed calling webhook "inferenceservice.kfserving-webhook-server.pod-mutator" · Issue #1197 · kubeflow/kfserving (github.com)](https://github.com/kubeflow/kfserving/issues/1197)
 
+- [kubernetes - failed calling webhook inferenceservice.kfserving-webhook-server.defaulter , x509 certificate error in kubeflow - Stack Overflow](https://stackoverflow.com/questions/63987287/failed-calling-webhook-inferenceservice-kfserving-webhook-server-defaulter-x50)
 
+  - golang 1.15.0-rc.1 이전 버전으로 컴파일한 걸 최신 버전 K8s에서 사용하면 문제가 발생함
+
+    - [v1.19 릴리스 노트 | Kubernetes](https://kubernetes.io/ko/docs/setup/release/notes/#업그레이드-전에-반드시-읽어야-함)
+    - [GODEBUG=x509ignoreCN=0 - Google 검색](https://www.google.com/search?newwindow=1&sxsrf=ALeKk00VaQ5IFaQpxLmx7qdTphfHFYzhEw%3A1606150897292&ei=8eq7X5S4Ednr-QbWpoII&q=GODEBUG%3Dx509ignoreCN%3D0&oq=GODEBUG%3Dx509ignoreCN%3D0&gs_lcp=CgZwc3ktYWIQAzIKCAAQBxAKEB4QEzIKCAAQBxAKEB4QEzIICAAQBxAeEBNQ1Z8OWNWfDmD7oQ5oAHAAeACAAfIBiAHyAZIBAzItMZgBAKABAaoBB2d3cy13aXrAAQE&sclient=psy-ab&ved=0ahUKEwjU9MCtkpntAhXZdd4KHVaTAAEQ4dUDCA0&uact=5)
+    - [systemd/User - ArchWiki (archlinux.org)](https://wiki.archlinux.org/index.php/systemd/User#Environment_variables)
+
+    ```bash
+    grep GODEBUG /etc/systemd/system.conf
+    DefaultEnvironment=GODEBUG=x509ignoreCN=0
+    ```
+
+    
 
 
 
