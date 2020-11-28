@@ -2,6 +2,14 @@ A교육과정 - Kubeflow 설치
 
 [TOC]
 
+```
+git clone https://github.com/reddiana/a-course.git
+cd a-course
+git config credential.helper store
+```
+
+
+
 # 설치 다익스트라
 
 | 방법   | 버전  | MicroK8S (K8s v1.19.3)                                       | Minikube (K8s v1.19.4)                                       |
@@ -233,12 +241,14 @@ exit
 ### Start minikube
 
 ```SHELL
-minikube start \
+sudo minikube start \
+ 	--driver=none \
 	--extra-config=apiserver.service-account-issuer=api \
 	--extra-config=apiserver.service-account-signing-key-file=/var/lib/minikube/certs/apiserver.key \
 	--extra-config=apiserver.service-account-api-audiences=api \
 	--cpus 6 --memory 14336 --disk-size=200g 
 
+# 	--driver=none \
 # 	--driver=docker \
 #	--cpus 6 --memory 12288 --disk-size=120g \	
 ```
@@ -268,7 +278,7 @@ kubectl proxy --accept-hosts=.* --address=0.0.0.0 &
 NodePort 사용
 
 ```bash
-minikube kubectl edit svc -n kubernetes-dashboard kubernetes-dashboard
+kubectl edit svc -n kubernetes-dashboard kubernetes-dashboard
 
 # minikube는 container 기반이므로 nat redirect를 해줘야한다
 minikube service -n kubernetes-dashboard kubernetes-dashboard

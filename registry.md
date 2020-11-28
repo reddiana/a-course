@@ -24,6 +24,8 @@ Failed to pull image "registry.kube-system.svc.cluster.local/tensorboard-job:8FD
   curl registry.kube-system.svc.cluster.local/v2/_catalog
   {"repositories":["tensorboard-job"]}
   ```
+  
+- [Add cluster DNS to node resolv.conf (cannot pull image from cluster-internal host name) · Issue #2162 · kubernetes/minikube (github.com)](https://github.com/kubernetes/minikube/issues/2162) 
 
 ### 2. CoreDNS에 host 등록 + NodePort
 
