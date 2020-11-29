@@ -15,7 +15,7 @@
 
 
 
-# GCP 인스턴스 준비
+### GCP 인스턴스 준비
 
 - 이름: red-edu
 - 머신구성
@@ -114,9 +114,9 @@ curl kubeflow-registry.default.svc.cluster.local:30000/v2/_catalog
 
 
 ```
-cat << EO_HOSTS >> /etc/hosts
-10.102.220.65	kubeflow-registry.default.svc.cluster.local
-EO_HOSTS
+cp /etc/hosts /ect/hosts.backup
+sed -i 's/^127\.0\.0\.1.*/127.0.0.1\tlocalhost\tkubeflow-registry.default.svc.cluster.local/' /etc/hosts
+grep localhost /etc/hosts
 ```
 
 ### minio 설정
@@ -161,6 +161,13 @@ minikube start \
   --extra-config=apiserver.service-account-signing-key-file=/var/lib/minikube/certs/apiserver.key \
   --extra-config=apiserver.service-account-api-audiences=api \
   --kubernetes-version v1.15.2 
+```
+
+### 교육 git 주소
+```
+https://github.com/reddiana/a-course.git
+https://github.com/sds-arch-cert/kubeflow-edu.git
+https://github.com/kubeflow-kale/examples.git
 ```
 
 ### 이슈
