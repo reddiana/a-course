@@ -35,15 +35,12 @@
     - 외부IP: 임시
       - 네트워크 서비스 계층: 표준
 
-
-
-https://www.kubeflow.org/docs/started/workstation/minikube-linux/
-
-모든 설치 과정은 root 계정으로 진행
+이하 모든 설치 과정은 root 계정으로 진행
 
 ### Alias (선택)
 
 ```sh
+sudo su
 cat << EOF >> /etc/bash.bashrc
 set -o vi
 alias d='docker'
@@ -52,6 +49,7 @@ alias kubectl='kubectl'
 alias kw='watch "kubectl get pod -A"'
 alias kww='watch "kubectl get pod -A | grep -v Running"'
 EOF
+exit
 ```
 
 ### 설치 스크립트로 설치 & 기동
@@ -81,14 +79,14 @@ kubectl edit svc -n kubernetes-dashboard kubernetes-dashboard
 ```yaml
 ...
   ports:
-  - nodePort: 30003  # 여기
-    port: 80
+  - port: 80
     protocol: TCP
     targetPort: 9090
+    nodePort: 30003  # 추가    
   selector:
     k8s-app: kubernetes-dashboard
   sessionAffinity: None
-  type: NodePort  # 여기
+  type: NodePort  # 변경
 ...
 ```
 
@@ -98,28 +96,18 @@ NAME                   TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)        AG
 kubernetes-dashboard   NodePort   10.98.226.19   <none>        80:30003/TCP   4m14s
 ```
 
-### Private Registry 설정
+### Private Registry 확인
 
 ```
 kubectl get svc kubeflow-registry
-NAME                TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)           AGE
-kubeflow-registry   NodePort   10.102.220.65   <none>        30000:30000/TCP   4m12s
-```
+NAME                TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)           AGE
+kubeflow-registry   NodePort   10.106.167.176   <none>        30000:30000/TCP   16m
 
-```
 curl kubeflow-registry.default.svc.cluster.local:30000/v2/_catalog
-
+{"repositories":[]}
 ```
 
-
-
-```
-cp /etc/hosts /ect/hosts.backup
-sed -i 's/^127\.0\.0\.1.*/127.0.0.1\tlocalhost\tkubeflow-registry.default.svc.cluster.local/' /etc/hosts
-grep localhost /etc/hosts
-```
-
-### minio 설정
+### minio 설정 (선택)
 
 ```
 kubectl edit svc -n kubeflow minio-service
@@ -128,10 +116,10 @@ kubectl edit svc -n kubeflow minio-service
 ```
 ...
   ports:
-  - nodePort: 31900 # 여기
-    port: 9000
+  - port: 9000
     protocol: TCP
     targetPort: 9000
+    nodePort: 32001 # 추가    
   selector:
     app: minio
     app.kubernetes.io/component: minio
@@ -141,7 +129,7 @@ kubectl edit svc -n kubeflow minio-service
     app.kubernetes.io/part-of: kubeflow
     app.kubernetes.io/version: 0.2.5
   sessionAffinity: None
-  type: NodePort # 여기
+  type: NodePort # 변경
 ...
 ```
 

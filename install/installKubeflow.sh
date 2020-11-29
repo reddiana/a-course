@@ -47,7 +47,6 @@ minikube start \
   --extra-config=apiserver.service-account-signing-key-file=/var/lib/minikube/certs/apiserver.key \
   --extra-config=apiserver.service-account-api-audiences=api \
   --kubernetes-version v1.15.2   
-#  --insecure-registry "kubeflow-registry.default.svc.cluster.local:30000" \
   
 echo "================================="
 echo "방화벽 해제"
@@ -94,13 +93,14 @@ popd
 kubectl apply -f kubeflow-registry-deploy.yaml
 kubectl apply -f kubeflow-registry-svc.yaml
 
-cp /etc/hosts /ect/hosts.backup
-sed -i 's/^127\.0\.0\.1.*/127.0.0.1\tlocalhost\tkubeflow-registry.default.svc.cluster.local/' /etc/hosts
+cat /etc/hosts
+# cp /etc/hosts /ect/hosts.backup
+# sed -i 's/^127\.0\.0\.1.*/127.0.0.1\tlocalhost\tkubeflow-registry.default.svc.cluster.local/' /etc/hosts
 
 echo "================================="
 echo "완료"
 echo "---------------------------------"
 echo
-echo "10초 후 설치 모니터링 들어갑니다"
-sleep 10
-watch "kubectl get pod -A | grep -v Running"  
+#echo "10초 후 설치 모니터링 들어갑니다"
+#sleep 10
+#watch "kubectl get pod -A | grep -v Running"  
