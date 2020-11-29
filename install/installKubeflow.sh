@@ -13,7 +13,7 @@ echo "================================="
 echo "kubectl 설치"
 echo "---------------------------------"
 
-cd ~
+pushd ~
 
 mkdir kubeflow
 cd kubeflow
@@ -55,13 +55,6 @@ minikube addons enable dashboard
 minikube addons enable metrics-server
 
 echo "================================="
-echo "Private Registry 설치"
-echo "---------------------------------"
-
-kubectl apply -f kubeflow-registry-deploy.yaml
-kubectl apply -f kubeflow-registry-svc.yaml
-
-echo "================================="
 echo "Kubeflow 설치"
 echo "---------------------------------"
 
@@ -88,6 +81,8 @@ kfctl apply -V -f ${CONFIG_URI}
 echo "================================="
 echo "Private Registry 설치"
 echo "---------------------------------"
+
+popd
 
 kubectl apply -f kubeflow-registry-deploy.yaml
 kubectl apply -f kubeflow-registry-svc.yaml
