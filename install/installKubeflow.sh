@@ -6,6 +6,13 @@ echo "---------------------------------"
 
 apt-get update
 apt-get install -y docker.io
+
+cat << EO_DOCKER_DAEMON > /etc/docker/daemon.json
+{
+        "insecure-registries": ["kubeflow-registry.default.svc.cluster.local:30000"]
+}
+EO_DOCKER_DAEMON
+
 systemctl start docker
 systemctl enable docker
 
@@ -39,8 +46,8 @@ minikube start \
   --extra-config=apiserver.service-account-issuer=api \
   --extra-config=apiserver.service-account-signing-key-file=/var/lib/minikube/certs/apiserver.key \
   --extra-config=apiserver.service-account-api-audiences=api \
-  --insecure-registry "kubeflow-registry.default.svc.cluster.local" \
-  --kubernetes-version v1.15.2 
+  --kubernetes-version v1.15.2   
+#  --insecure-registry "kubeflow-registry.default.svc.cluster.local:30000" \
   
 echo "================================="
 echo "방화벽 해제"
@@ -90,5 +97,7 @@ kubectl apply -f kubeflow-registry-svc.yaml
 echo "================================="
 echo "완료"
 echo "---------------------------------"
-
+echo
+echo "10초 후 설치 모니터링 들어갑니다"
+sleep 10
 watch "kubectl get pod -A | grep -v Running"  
