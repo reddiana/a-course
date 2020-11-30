@@ -93,9 +93,10 @@ popd
 kubectl apply -f kubeflow-registry-deploy.yaml
 kubectl apply -f kubeflow-registry-svc.yaml
 
+cat << EO_HOSTS >> /etc/hosts
+127.0.0.1	 kubeflow-registry.default.svc.cluster.local
+EO_HOSTS
 cat /etc/hosts
-# cp /etc/hosts /ect/hosts.backup
-# sed -i 's/^127\.0\.0\.1.*/127.0.0.1\tlocalhost\tkubeflow-registry.default.svc.cluster.local/' /etc/hosts
 
 echo "================================="
 echo "완료"

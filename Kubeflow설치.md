@@ -153,9 +153,9 @@ minikube start \
 
 ### 교육 git 주소
 ```
-https://github.com/reddiana/a-course.git
-https://github.com/sds-arch-cert/kubeflow-edu.git
-https://github.com/kubeflow-kale/examples.git
+git clone https://github.com/reddiana/a-course.git
+git clone https://github.com/sds-arch-cert/kubeflow-edu.git
+git clone https://github.com/kubeflow-kale/examples.git ./kale-example
 ```
 
 ### 이슈
