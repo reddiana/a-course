@@ -4,6 +4,7 @@ USER root
 
 RUN apt-get update 
 
+# TODO 지울 것
 RUN apt-get install -y dnsutils
 
 # opencv에서 사용
@@ -16,25 +17,20 @@ RUN pip install --no-cache-dir enum34==1.1.8
 
 RUN pip install --upgrade --no-cache-dir \
                 kubeflow-fairing \
-                kfp \
+                msrestazure \
                 kubeflow-katib \
-                kfserving
-
-RUN pip install --upgrade --no-cache-dir \
+                kfp \
+                kfserving \
                 minio \
-                ipython-sql \
-                pandas \
-                opencv-python \
-                matplotlib \
-                seaborn \
-                scikit-learn 
-
-RUN pip install --upgrade --no-cache-dir \
                 jupyterlab 
 
-# 아쉽게도 더이상 지원하지 않음
-# https://github.com/Kaggle/jupyterlab 
-# RUN jupyter labextension install @kaggle/jupyterlab
+RUN pip install --upgrade --no-cache-dir \
+                ipython-sql \
+                pandas \
+                scikit-learn \
+                opencv-python \
+                matplotlib \
+                seaborn 
 
 # https://github.com/lckr/jupyterlab-variableInspector
 RUN jupyter labextension install @lckr/jupyterlab_variableinspector
@@ -43,13 +39,10 @@ RUN jupyter labextension install @lckr/jupyterlab_variableinspector
 RUN jupyter labextension install @jupyterlab/toc 
 
 # https://github.com/jupyterlab/jupyterlab-git
-RUN pip install --upgrade --no-cache-dir \
-                jupyterlab-git && \
-    jupyter lab build
+RUN pip install --upgrade --no-cache-dir jupyterlab-git && \
+    jupyter lab build --debug
 
-# Kale 설치
-# RUN pip install kubeflow-kale==0.5.0
-# RUN jupyter labextension install kubeflow-kale-labextension@0.5.0 --debug 
+# https://github.com/kubeflow-kale/kale.git
 RUN pip install kubeflow-kale && \
     jupyter labextension install kubeflow-kale-labextension --debug 
 
@@ -57,9 +50,10 @@ RUN pip install kubeflow-kale && \
 ENV SHELL /bin/bash
 
 # 기본 환경 세팅
-RUN echo "set -o vi"         >> /etc/bash.bashrc & \
-    echo "alias ll='ls -al'" >> /etc/bash.bashrc
-
+RUN echo "set -o vi"                                >> /etc/bash.bashrc & \
+    echo "alias ll='ls -al'"                        >> /etc/bash.bashrc & \
+    echo "# Container built at $(date +'%F %T %Z')" >> /etc/bash.bashrc
+ 
 # 아래 내용 보안정책 확인하여 위규라면 삭제할 것
 RUN echo "jovyan ALL=NOPASSWD: ALL" >> /etc/sudoers 
 
