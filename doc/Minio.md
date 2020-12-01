@@ -70,5 +70,21 @@ secrets:
 - name: kfserving-secret
 ```
 
+```
+# kubectl apply -f -
+apiVersion: serving.kubeflow.org/v1alpha2
+kind: InferenceService
+metadata:
+  name: kfserving-fmnist
+  namespace: kubeflow
+spec:
+  default:
+    predictor:
+      serviceAccountName: kfserving-sa
+      tensorflow:
+        storageUri: 's3://kubeflow-pvc/saved_model'
+
+```
+
 
 
