@@ -6,26 +6,66 @@ https://github.com/kubeflow/fairing.git
 
 
 
-# S3
+# minio cli
+
+- [MinIO | The complete guide to the MinIO client](https://docs.min.io/docs/minio-client-complete-guide.html)
+
+```
+wget https://dl.min.io/client/mc/release/linux-amd64/mc
+chmod +x mc
+mv mc /usr/bin
+
+vi ~/.mc/config.json
+...
+mc ls myminio/
+```
+
+```
+ls          list buckets and objects
+mb          make a bucket
+rb          remove a bucket
+cp          copy objects
+cat         display object contents
+mv          move objects
+tree        list buckets and objects in a tree format
+rm          remove objects
+```
+
+# Tensorflow
 
 - [examples/s3.md at master · tensorflow/examples (github.com)](https://github.com/tensorflow/examples/blob/master/community/en/docs/deploy/s3.md)
 
-Using the above information, we can configure Tensorflow to communicate to an S3 endpoint by setting the following environment variables:
+```python
+os.environ.update({
+    'S3_ENDPOINT'          : 'minio-service.kubeflow:9000',
+    'AWS_ACCESS_KEY_ID'    : 'minio',
+    'AWS_SECRET_ACCESS_KEY': 'minio123',
+    'S3_USE_HTTPS'         : '0',	# Whether or not to use HTTPS. Disable with 0.                        
+    'S3_VERIFY_SSL'        : '0' 	# If HTTPS is used, controls if SSL should be enabled. Disable with 0.
+})    
 
-```
-AWS_ACCESS_KEY_ID=XXXXX                 # Credentials only needed if connecting to a private endpoint
-AWS_SECRET_ACCESS_KEY=XXXXX
-AWS_REGION=us-east-1                    # Region for the S3 bucket, this is not always needed. Default is us-east-1.
-S3_ENDPOINT=s3.us-east-1.amazonaws.com  # The S3 API Endpoint to connect to. This is specified in a HOST:PORT format.
-S3_USE_HTTPS=1                          # Whether or not to use HTTPS. Disable with 0.
-S3_VERIFY_SSL=1                         # If HTTPS is used, controls if SSL should be enabled. Disable with 0.
-```
-
-# Jupyter Notebook
-
+save_model(model, 's3://my-test/covid/1')
 ```
 
+# Minio SDK
+
+```python
+from minio import Minio
+from minio.error import ResponseError
+
+minioClient = Minio('minio-service.kubeflow:9000',
+                    access_key='minio', secret_key='minio123', secure=False)
+try:
+    minioClient.fget_object('my-test', 'titanic/test.csv',  '/tmp/test.csv')
+    minioClient.fget_object('my-test', 'titanic/train.csv', '/tmp/train.csv')
+except ResponseError as err:
+    print(err)
+    
+test_df  = pd.read_csv('/tmp/test.csv')
+train_df = pd.read_csv('/tmp/train.csv')    
 ```
+
+
 
 
 
@@ -49,9 +89,6 @@ bWluaW8xMjM=
 # kubectl apply -f -
 apiVersion: v1
 kind: Secret
-data:
-  awsAccessKeyID: bWluaW8=
-  awsSecretAccessKey: bWluaW8xMjM=
 metadata:
   name: minio-secret
   namespace: myspace
@@ -59,6 +96,9 @@ metadata:
     serving.kubeflow.org/s3-endpoint: minio-service.kubeflow:9000
     serving.kubeflow.org/s3-usehttps: "0"
     serving.kubeflow.org/s3-verifyssl: "0"
+data:
+  awsAccessKeyID: bWluaW8=
+  awsSecretAccessKey: bWluaW8xMjM=
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -80,11 +120,22 @@ metadata:
 spec:
   default:
     predictor:
-      serviceAccountName: kfserving-sa
       tensorflow:
-        storageUri: 's3://kubeflow-pvc/saved_model'
+        storageUri: 's3://my-test/covid/1'
+      DeploymentSpec:
+        serviceAccountName: kfserving-sa
 
 ```
 
 
+
+```
+커맨드
+/usr/bin/tensorflow_model_server
+인수
+--port=9000
+--rest_api_port=8080
+--model_name=kfserving-fmnist
+--model_base_path=/mnt/models
+```
 
