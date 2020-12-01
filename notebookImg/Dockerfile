@@ -38,6 +38,9 @@ RUN jupyter labextension install @lckr/jupyterlab_variableinspector
 # https://github.com/jupyterlab/jupyterlab-toc
 RUN jupyter labextension install @jupyterlab/toc 
 
+# https://github.com/deshaw/jupyterlab-execute-time
+RUN jupyter labextension install jupyterlab-execute-time
+
 # https://github.com/jupyterlab/jupyterlab-git
 RUN pip install --upgrade --no-cache-dir jupyterlab-git && \
     jupyter lab build --debug
