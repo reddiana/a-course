@@ -20,7 +20,7 @@ echo "================================="
 echo "kubectl 설치"
 echo "---------------------------------"
 
-pushd ~
+cd ~
 
 mkdir kubeflow
 cd kubeflow
@@ -88,10 +88,71 @@ echo "================================="
 echo "Private Registry 설치"
 echo "---------------------------------"
 
-popd
+cat << EO_REGISTRY_DEPLOY | kubectl apply -f -
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+  generation: 1
+  labels:
+    run: kubeflow-registry
+  name: kubeflow-registry
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      run: kubeflow-registry
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: kubeflow-registry
+    spec:
+      containers:
+      - image: registry:2
+        imagePullPolicy: IfNotPresent
+        name: kubeflow-registry
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+EO_REGISTRY_DEPLOY
 
-kubectl apply -f kubeflow-registry-deploy.yaml
-kubectl apply -f kubeflow-registry-svc.yaml
+cat << EO_REGISTRY_SVC | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: kubeflow-registry
+  name: kubeflow-registry
+  namespace: default
+spec:
+  ports:
+  - name: registry
+    port: 30000
+    protocol: TCP
+    targetPort: 5000
+    nodePort: 30000
+  selector:
+    run: kubeflow-registry
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}
+EO_REGISTRY_SVC
 
 cat << EO_HOSTS >> /etc/hosts
 127.0.0.1	 kubeflow-registry.default.svc.cluster.local
