@@ -6,6 +6,10 @@ https://github.com/kubeflow/fairing.git
 
 
 
+
+
+[kfserving/docs/samples/storage/s3 at master · kubeflow/kfserving (github.com)](https://github.com/kubeflow/kfserving/tree/master/docs/samples/storage/s3)
+
 # minio cli
 
 - [MinIO | The complete guide to the MinIO client](https://docs.min.io/docs/minio-client-complete-guide.html)
@@ -17,7 +21,21 @@ mv mc /usr/bin
 
 vi ~/.mc/config.json
 ...
-mc ls myminio/
+                "myminio": {
+                        "url": "http://minio-service.kubeflow:9000",
+                        "accessKey": "minio",
+                        "secretKey": "minio123",
+                        "api": "S3v4",
+                        "path": "auto"
+                },
+...
+
+mc rm --recursive --force myminio/dataset/covid-19/
+
+git clone https://github.com/sds-arch-cert/Covid19-X-Rays.git
+mc cp -r Covid19-X-Rays/all/* myminio/dataset/covid-19/
+
+mc tree myminio/
 ```
 
 ```
@@ -67,6 +85,25 @@ train_df = pd.read_csv('/tmp/train.csv')
 
 
 
+# Boto3
+
+```python
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import numpy as np
+import boto3
+import io
+
+s3 = boto3.resource('s3', region_name='us-east-2')
+bucket = s3.Bucket('sentinel-s2-l1c')
+object = bucket.Object('tiles/10/S/DG/2015/12/7/0/B01.jp2')
+
+file_stream = io.StringIO()
+object.download_fileobj(file_stream)
+img = mpimg.imread(file_stream)
+# whatever you need to do
+```
+
 
 
 # Fairing
@@ -86,7 +123,7 @@ bWluaW8xMjM=
 ```
 
 ```
-# kubectl apply -f -
+cat << EOF | kubectl apply -f -
 apiVersion: v1
 kind: Secret
 metadata:
@@ -108,34 +145,24 @@ metadata:
 secrets:
 - name: minio-secret
 - name: kfserving-secret
+EOF
+
 ```
 
 ```
-# kubectl apply -f -
+cat << EOF | kubectl apply -f -
 apiVersion: serving.kubeflow.org/v1alpha2
 kind: InferenceService
 metadata:
-  name: kfserving-fmnist
+  name: kfserving-covid19
   namespace: kubeflow
 spec:
   default:
     predictor:
+      serviceAccountName: kfserving-sa
       tensorflow:
-        storageUri: 's3://my-test/covid/1'
-      DeploymentSpec:
-        serviceAccountName: kfserving-sa
+        storageUri: 's3://model/covid/1'
+EOF
 
-```
-
-
-
-```
-커맨드
-/usr/bin/tensorflow_model_server
-인수
---port=9000
---rest_api_port=8080
---model_name=kfserving-fmnist
---model_base_path=/mnt/models
 ```
 
