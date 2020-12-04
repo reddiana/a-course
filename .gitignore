@@ -1,6 +1,5 @@
 .ipynb_checkpoints/
-/all/test/
-/all/train/
+all/
 *.katib.yaml
 *.kale.py
 *.pipeline.yaml
