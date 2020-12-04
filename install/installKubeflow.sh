@@ -1,9 +1,10 @@
 #!/bin/bash
 
-echo "================================="
-echo "도커 설치"
-echo "---------------------------------"
-
+echo '
+=================================
+도커 설치
+---------------------------------
+'
 apt-get update
 apt-get install -y docker.io
 
@@ -16,29 +17,31 @@ EO_DOCKER_DAEMON
 systemctl start docker
 systemctl enable docker
 
-echo "================================="
-echo "kubectl 설치"
-echo "---------------------------------"
-
-cd ~
-
-mkdir kubeflow
-cd kubeflow
+echo '
+=================================
+kubectl 설치
+---------------------------------
+'
+mkdir -p ~/kubeflow
+cd ~/kubeflow
 
 curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/linux/amd64/kubectl
 chmod +x ./kubectl
-sudo mv ./kubectl /usr/local/bin/kubectl
+mv ./kubectl /usr/local/bin/kubectl
 
-echo "================================="
-echo "minikube 설치"
-echo "---------------------------------"
-
+echo '
+=================================
+minikube 설치
+---------------------------------
+'
 curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
 install minikube-linux-amd64 /usr/local/bin/minikube
 
-echo "================================="
-echo "minikube 기동"
-echo "---------------------------------"
+echo '
+=================================
+minikube 기동
+---------------------------------
+'
 sysctl fs.protected_regular=0
 
 minikube start \
@@ -48,22 +51,26 @@ minikube start \
   --extra-config=apiserver.service-account-api-audiences=api \
   --kubernetes-version v1.15.2   
   
-echo "================================="
-echo "방화벽 해제"
-echo "---------------------------------"
+echo '
+=================================
+방화벽 해제
+---------------------------------
+'
 ufw disable  
   
-echo "================================="
-echo "K8s 대쉬보드 설치"
-echo "---------------------------------"
-
+echo '
+=================================
+K8s 대쉬보드 설치
+---------------------------------
+'
 minikube addons enable dashboard 
 minikube addons enable metrics-server
 
-echo "================================="
-echo "Kubeflow 설치"
-echo "---------------------------------"
-
+echo '
+=================================
+Kubeflow 설치
+---------------------------------
+'
 export KF_HOME=~/kubeflow
 export KF_NAME=sds-kubeflow
 
@@ -84,10 +91,11 @@ mkdir -p ${KF_DIR}
 cd ${KF_DIR}
 kfctl apply -V -f ${CONFIG_URI}
 
-echo "================================="
-echo "Private Registry 설치"
-echo "---------------------------------"
-
+echo '
+=================================
+Private Registry 설치
+---------------------------------
+'
 cat << EO_REGISTRY_DEPLOY | kubectl apply -f -
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -159,10 +167,11 @@ cat << EO_HOSTS >> /etc/hosts
 EO_HOSTS
 cat /etc/hosts
 
-echo "================================="
-echo "완료"
-echo "---------------------------------"
-echo
-#echo "10초 후 설치 모니터링 들어갑니다"
-#sleep 10
-#watch "kubectl get pod -A | grep -v Running"  
+echo '
+=================================
+완료
+---------------------------------
+'
+
+sleep 10
+watch "kubectl get pod -A | grep -v Running"  
