@@ -19,16 +19,8 @@ wget https://dl.min.io/client/mc/release/linux-amd64/mc
 chmod +x mc
 mv mc /usr/bin
 
-vi ~/.mc/config.json
-...
-                "myminio": {
-                        "url": "http://minio-service.kubeflow:9000",
-                        "accessKey": "minio",
-                        "secretKey": "minio123",
-                        "api": "S3v4",
-                        "path": "auto"
-                },
-...
+mc config host add myminio http://minio-service.kubeflow:9000 minio minio123
+mc config host list
 
 mc rm --recursive --force myminio/dataset/covid-19/
 
@@ -169,4 +161,6 @@ spec:
 EOF
 
 ```
+
+
 

@@ -49,10 +49,10 @@ exit
 - Private Registry 설치
 
 ```
+sudo su
 git clone https://github.com/reddiana/a-course.git
 git config credential.helper store
-cd a-course/install
-./installKubeflow.sh
+a-course/install/installKubeflow.sh
 ```
 
 ### K8s 대쉬보드 설정
@@ -141,6 +141,7 @@ minikube start \
 git clone https://github.com/reddiana/a-course.git
 git clone https://github.com/sds-arch-cert/kubeflow-edu.git
 git clone https://github.com/kubeflow-kale/examples.git ./kale-example
+git clone https://github.com/zhongli1990/Covid19-X-Rays.git
 ```
 
 ### 이슈

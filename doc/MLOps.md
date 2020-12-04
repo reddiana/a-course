@@ -2,3 +2,16 @@
 
 
 
+# [MLOps: 머신러닝의 지속적 배포 및 자동화 파이프라인  | Google Cloud](https://cloud.google.com/solutions/machine-learning/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning?hl=ko)
+
+## 수동 프로세스
+
+![MLOps 수준 0에 대한 수동 ML 단계의 워크플로](../images/MLOps/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning-2-manual-ml.svg)
+
+## ML 파이프라인 자동화
+
+![CT용 ML 파이프라인의 워크플로](../images/MLOps/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning-3-ml-automation-ct.svg)
+
+## CI/CD 파이프라인 자동화
+
+![CI/CD 통합을 사용하는 ML 파이프라인의 워크플로](../images/MLOps/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning-4-ml-automation-ci-cd.svg)
