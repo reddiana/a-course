@@ -2,31 +2,6 @@
 
 
 
-# 이슈
-
-```
-# k describe  job -n myspace        red-1021-1441-exp-tlb0j-7r6c7n2x
-Name:           red-1021-1441-exp-tlb0j-7r6c7n2x
-Namespace:      myspace
-...
-Pod Template:
-  Labels:           access-ml-pipeline=true
-                    controller-uid=09315f19-6fca-4ce0-91b5-3ee71e0d5f6c
-                    job-name=red-1021-1441-exp-tlb0j-7r6c7n2x
-  Annotations:      sidecar.istio.io/inject: false
-  Service Account:  pipeline-runner
-  Containers:
-   red-1021-1441-exp-tlb0j-7r6c7n2x:
-    Image:      gcr.io/arrikto/katib-kfp-trial:7a304af-feaafdd
-...
-Events:
-  Type     Reason        Age                   From            Message
-  ----     ------        ----                  ----            -------
-  Warning  FailedCreate  82s (x63 over 5h47m)  job-controller  Error creating: pods "red-1021-1441-exp-tlb0j-7r6c7n2x-" is forbidden: error looking up service account myspace/pipeline-runner: serviceaccount "pipeline-runner" not found
-```
-
-
-
 [Kubeflow – Katib 소개 – 지구별 여행자 (kangwoo.kr)](https://kangwoo.kr/2020/03/20/kubeflow-katib-소개/)
 
 [katib/workflow-design.md at master · kubeflow/katib (github.com)](https://github.com/kubeflow/katib/blob/master/docs/workflow-design.md)
@@ -58,6 +33,36 @@ docker push $TAG
 - Suggestion
 
 - Trial
+
+# 실행 오브젝트
+
+```
+root@red-edu-2:~# k get all -A | grep fashion-mnist-experiment-2
+myspace                pod/fashion-mnist-experiment-2-gnqf2p7d-vqvbx                      0/2     ImagePullBackOff   0          54s
+
+myspace                pod/fashion-mnist-experiment-2-nbk4tb9w-z9gnn                      0/2     ErrImagePull       0          54s
+myspace                pod/fashion-mnist-experiment-2-random-6498f969f7-2mh98             1/1     Running            0          67s
+
+myspace                service/fashion-mnist-experiment-2-random              ClusterIP      10.106.14.186    <none>        6789/TCP                                                                                                                                                                                  67s
+
+
+myspace                deployment.apps/fashion-mnist-experiment-2-random             1/1     1            1           67s
+
+myspace                replicaset.apps/fashion-mnist-experiment-2-random-6498f969f7             1         1         1       67s
+
+
+
+myspace        job.batch/fashion-mnist-experiment-2-gnqf2p7d   0/1           54s        54s
+myspace        job.batch/fashion-mnist-experiment-2-nbk4tb9w   0/1           54s        54s
+
+
+myspace     suggestion.kubeflow.org/fashion-mnist-experiment-2   Running   True     2           2          67s
+
+myspace     experiment.kubeflow.org/fashion-mnist-experiment-2   Running     67s
+
+myspace     trial.kubeflow.org/fashion-mnist-experiment-2-gnqf2p7d   Running     True     54s
+myspace     trial.kubeflow.org/fashion-mnist-experiment-2-nbk4tb9w   Running     True     54s
+```
 
 
 

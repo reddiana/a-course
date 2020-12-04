@@ -52,10 +52,17 @@ exit
 sudo su
 git clone https://github.com/reddiana/a-course.git
 git config credential.helper store
-a-course/install/installKubeflow.sh
+cd a-course/install/installKubeflow.sh
 ```
 
 ### K8s 대쉬보드 설정
+
+```bash
+# 스크립트로 되는지 테스트 해보자
+kubectl patch svc kubernetes-dashboard --type='json' -p '[{"op":"replace","path":"/spec/type","value":"NodePort"}]'
+```
+
+
 
 ```
 kubectl edit svc -n kubernetes-dashboard kubernetes-dashboard
@@ -139,6 +146,11 @@ minikube start \
 ### 교육 git 주소
 ```
 git clone https://github.com/reddiana/a-course.git
+cd a-course
+git config --global user.email "red.suh@samsung.com"
+git config --global user.name "서세일"
+git config credential.helper store
+
 git clone https://github.com/sds-arch-cert/kubeflow-edu.git
 git clone https://github.com/kubeflow-kale/examples.git ./kale-example
 git clone https://github.com/zhongli1990/Covid19-X-Rays.git
