@@ -1,7 +1,7 @@
 apiVersion: "kubeflow.org/v1alpha3"
 kind: Experiment
 metadata:
-  namespace: myspace     # here namespace
+  namespace: myspace
   labels:
     controller-tools.k8s.io: "1.0"
   name: fashion-mnist-experiment-1
@@ -32,10 +32,10 @@ spec:
               spec:
                 containers:
                 - name: {{.Trial}}
-                  image: kubeflow-registry.default.svc.cluster.local:30000/katib-job:mymy  # fairing code image
+                  image: kubeflow-registry.default.svc.cluster.local:30000/katib-job:latest
                   command: 
                   - "python"
-                  - "/app/01-1-fashion-mnist-katib-train.py"  # here
+                  - "/app/01-1-fashion-mnist-katib-train.py"
                   {{- with .HyperParameters}}
                   {{- range .}}
                   - "{{.Name}}={{.Value}}"
