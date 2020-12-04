@@ -54,6 +54,10 @@ rm          remove objects
 - [examples/s3.md at master · tensorflow/examples (github.com)](https://github.com/tensorflow/examples/blob/master/community/en/docs/deploy/s3.md)
 
 ```python
+from tensorflow.keras.models import save_model
+
+...
+
 os.environ.update({
     'S3_ENDPOINT'          : 'minio-service.kubeflow:9000',
     'AWS_ACCESS_KEY_ID'    : 'minio',
@@ -62,7 +66,7 @@ os.environ.update({
     'S3_VERIFY_SSL'        : '0' 	# If HTTPS is used, controls if SSL should be enabled. Disable with 0.
 })    
 
-save_model(model, 's3://my-test/covid/1')
+save_model(model, 's3://model/covid/1')
 ```
 
 # Minio SDK
