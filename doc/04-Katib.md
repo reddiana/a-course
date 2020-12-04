@@ -2,6 +2,29 @@
 
 
 
+# 이슈
+
+```
+# k describe  job -n myspace        red-1021-1441-exp-tlb0j-7r6c7n2x
+Name:           red-1021-1441-exp-tlb0j-7r6c7n2x
+Namespace:      myspace
+...
+Pod Template:
+  Labels:           access-ml-pipeline=true
+                    controller-uid=09315f19-6fca-4ce0-91b5-3ee71e0d5f6c
+                    job-name=red-1021-1441-exp-tlb0j-7r6c7n2x
+  Annotations:      sidecar.istio.io/inject: false
+  Service Account:  pipeline-runner
+  Containers:
+   red-1021-1441-exp-tlb0j-7r6c7n2x:
+    Image:      gcr.io/arrikto/katib-kfp-trial:7a304af-feaafdd
+...
+Events:
+  Type     Reason        Age                   From            Message
+  ----     ------        ----                  ----            -------
+  Warning  FailedCreate  82s (x63 over 5h47m)  job-controller  Error creating: pods "red-1021-1441-exp-tlb0j-7r6c7n2x-" is forbidden: error looking up service account myspace/pipeline-runner: serviceaccount "pipeline-runner" not found
+```
+
 
 
 [Kubeflow – Katib 소개 – 지구별 여행자 (kangwoo.kr)](https://kangwoo.kr/2020/03/20/kubeflow-katib-소개/)
