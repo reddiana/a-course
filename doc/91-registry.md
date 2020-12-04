@@ -221,7 +221,7 @@ minikube start \
 ```
 registry.kube-system.svc.cluster.local
 
-curl registry.kube-system.svc.cluster.local/v2/_catalog
+curl kubeflow-registry.default.svc.cluster.local:30000/v2/_catalog
 
 192.168.49.2  my.sds.redii.net
 

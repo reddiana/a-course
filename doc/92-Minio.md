@@ -22,9 +22,10 @@ mv mc /usr/bin
 mc config host add myminio http://minio-service.kubeflow:9000 minio minio123
 mc config host list
 
-mc rm --recursive --force myminio/dataset/covid-19/
+#mc rm --recursive --force myminio/dataset/covid-19/
 
 git clone https://github.com/sds-arch-cert/Covid19-X-Rays.git
+mc mb myminio/dataset
 mc cp -r Covid19-X-Rays/all/* myminio/dataset/covid-19/
 
 mc tree myminio/
