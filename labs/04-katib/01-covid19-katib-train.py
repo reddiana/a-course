@@ -23,22 +23,18 @@ import argparse
 from tensorflow.python.keras.callbacks import Callback
 
 class KatibMetricLog(Callback):
-    def on_batch_end(self, batch, logs={}):
-        print(
-            "batch="        + str(batch),
-            "accuracy="     + str(logs.get('accuracy')),
-            "loss="         + str(logs.get('loss')),
-            "val_accuracy=" + str(logs.get('val_accuracy')),
-            "val_loss="     + str(logs.get('val_loss')),
-        )
     def on_epoch_begin(self, epoch, logs={}):
         print(
             "epoch " + str(epoch) + ":"
         )    
-    def on_epoch_end(self, epoch, logs={}):
+    def on_batch_end(self, batch, logs={}):
         print(
+            "batch="               + str(batch),
             "accuracy="            + str(logs.get('accuracy')),
             "loss="                + str(logs.get('loss')),
+        )
+    def on_epoch_end(self, epoch, logs={}):
+        print(
             "Validation-accuracy=" + str(logs.get('val_accuracy')),
             "Validation-loss="     + str(logs.get('val_loss')),
         )

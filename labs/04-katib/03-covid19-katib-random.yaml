@@ -6,38 +6,38 @@ metadata:
     controller-tools.k8s.io: "1.0"
   name: covid19-experiment-1
 spec:
-  algorithm:
-    algorithmName: random
-    algorithmSettings:
-    - name: random_state
-      value: '42'
-  maxFailedTrialCount: 3
-  maxTrialCount: 3
-  objective:
-    additionalMetricNames:
-    - loss
-    - valloss
-    - valaccuracy
-    goal: 99
-    objectiveMetricName: accuracy
-    type: minimize
-  parallelTrialCount: 1
   parameters:
-  - feasibleSpace:
+  - name: --learning_rate
+    parameterType: categorical
+    feasibleSpace:
       list:
       - '0.001'
       - '0.0001'
       - '0.0003'
       - '0.00001'
       - '0.00003'
-    name: --learning_rate
-    parameterType: categorical
-  - feasibleSpace:
+  - name: --dense
+    parameterType: int
+    feasibleSpace:
       max: '200'
       min: '50'
       step: '10'
-    name: --dense
-    parameterType: int
+  algorithm:
+    algorithmName: random
+    algorithmSettings:
+    - name: random_state
+      value: '42'
+  maxFailedTrialCount: 3
+  parallelTrialCount: 1
+  maxTrialCount: 3
+  objective:
+    additionalMetricNames:
+    - loss
+    - Validation-loss
+    - Validation-accuracy
+    goal: 99
+    objectiveMetricName: accuracy
+    type: minimize
   trialTemplate:
     goTemplate:
         rawTemplate: |-
