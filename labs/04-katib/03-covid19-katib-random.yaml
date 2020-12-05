@@ -27,9 +27,9 @@ spec:
     algorithmSettings:
     - name: random_state
       value: '42'
+  parallelTrialCount: 3
+  maxTrialCount: 6
   maxFailedTrialCount: 3
-  parallelTrialCount: 1
-  maxTrialCount: 3
   objective:
     additionalMetricNames:
     - loss
