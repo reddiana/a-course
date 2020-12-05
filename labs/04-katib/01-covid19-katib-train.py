@@ -10,8 +10,6 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
-from imutils import paths
-import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 import os
