@@ -30,13 +30,13 @@ spec:
       - '0.0003'
       - '0.00001'
       - '0.00003'
-    name: LEARNING_RATE
+    name: --learning_rate
     parameterType: categorical
   - feasibleSpace:
       max: '200'
       min: '50'
       step: '10'
-    name: DENSE
+    name: --dense
     parameterType: int
   trialTemplate:
     goTemplate:
@@ -52,7 +52,7 @@ spec:
                 containers:
                 - name: {{.Trial}}
                   image: kubeflow-registry.default.svc.cluster.local:30000/covid19-katib-job:latest
-                  command: 
+                  command:
                   - "python3"
                   - "/app/01-covid19-katib-train.py"
                   {{- with .HyperParameters}}

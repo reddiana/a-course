@@ -25,9 +25,11 @@ from tensorflow.python.keras.callbacks import Callback
 class KatibMetricLog(Callback):
     def on_batch_end(self, batch, logs={}):
         print(
-            "batch="    + str(batch),
-            "accuracy=" + str(logs.get('acc')),
-            "loss="     + str(logs.get('loss'))
+            "batch="        + str(batch),
+            "accuracy="     + str(logs.get('accuracy')),
+            "loss="         + str(logs.get('loss')),
+            "val_accuracy=" + str(logs.get('val_accuracy')),
+            "val_loss="     + str(logs.get('val_loss')),
         )
     def on_epoch_begin(self, epoch, logs={}):
         print(
@@ -35,8 +37,10 @@ class KatibMetricLog(Callback):
         )    
     def on_epoch_end(self, epoch, logs={}):
         print(
+            "accuracy="            + str(logs.get('accuracy')),
+            "loss="                + str(logs.get('loss')),
             "Validation-accuracy=" + str(logs.get('val_accuracy')),
-            "Validation-loss="     + str(logs.get('val_loss'))
+            "Validation-loss="     + str(logs.get('val_loss')),
         )
         
 parser = argparse.ArgumentParser()
@@ -115,6 +119,7 @@ print("Training the full stack model...")
 
 hist = model.fit(
     x_train, y_train, 
+    verbose=0,   
     epochs=3, 
     validation_data=(x_val, y_val), 
     batch_size=8,
