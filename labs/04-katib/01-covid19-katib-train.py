@@ -35,7 +35,7 @@ class KatibMetricLog(Callback):
         )    
     def on_epoch_end(self, epoch, logs={}):
         print(
-            "Validation-accuracy=" + str(logs.get('val_acc')),
+            "Validation-accuracy=" + str(logs.get('val_accuracy')),
             "Validation-loss="     + str(logs.get('val_loss'))
         )
         
