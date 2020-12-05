@@ -20,6 +20,17 @@ from PIL import Image
 
 from minio import Minio
 from minio.error import ResponseError
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--learning_rate', required=False, type=float, default=0.00001 )
+parser.add_argument('--dense'        , required=False, type=float, default=128     )
+args = parser.parse_args()    
+print("args=", args)
+
+# Hyperparameters 
+LEARNING_RATE = args.learning_rate # List: 0.001, 0.0001, 0.0003, 0.00001, 0.00003
+DENSE         = args.dense         # Range: 50-200
 
 # Data Preparation
 
@@ -62,10 +73,6 @@ print(label_encoder.classes_)
 (x_train, x_val, y_train, y_val) = train_test_split(data, labels, test_size=0.20, stratify=labels)
 
 # Model 구성
-
-# Hyperparameters 
-LEARNING_RATE = 0.00001 # List: 0.001, 0.0001, 0.0003, 0.00001, 0.00003
-DENSE = 128             # Range: 50-200
 
 model = Sequential()
 adam_s = Adam(learning_rate = LEARNING_RATE)

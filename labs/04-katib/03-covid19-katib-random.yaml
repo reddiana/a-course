@@ -4,10 +4,10 @@ metadata:
   namespace: myspace
   labels:
     controller-tools.k8s.io: "1.0"
-  name: fashion-mnist-experiment-1
+  name: convid19-experiment-1
 spec:
-  parallelTrialCount: 2  
-  maxTrialCount: 4
+  parallelTrialCount: 1  
+  maxTrialCount: 3
   maxFailedTrialCount: 3
   objective:
     type: maximize
@@ -35,7 +35,7 @@ spec:
                   image: kubeflow-registry.default.svc.cluster.local:30000/katib-job:latest
                   command: 
                   - "python"
-                  - "/app/01-fashion-mnist-katib-train.py"
+                  - "/app/01-convid19-katib-train.py"
                   {{- with .HyperParameters}}
                   {{- range .}}
                   - "{{.Name}}={{.Value}}"
