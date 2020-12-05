@@ -41,7 +41,7 @@ class MyFashionMnist(object):
     print('Test accuracy: ', score[1])
 
 
-# In[7]:
+# In[2]:
 
 
 if __name__ == '__main__':
@@ -51,16 +51,16 @@ if __name__ == '__main__':
         
         PRIVATE_REGISTRY = 'kubeflow-registry.default.svc.cluster.local:30000'
         
-#         fairing.config.set_preprocessor(
-#             'notebook', 
-#             command = ['haha'],  # default: python
-#         )
+        # fairing.config.set_preprocessor(
+        #     'notebook', 
+        #     command = ['python3'],  # default: python
+        # )
         
         fairing.config.set_builder(
             'append',
             base_image=f'{PRIVATE_REGISTRY}/kf-base:latest', # 사전준비에서 마련한 Base Image
             registry = PRIVATE_REGISTRY,
-            image_name='tensorboard-job', 
+            image_name='my-04-notebook-single-file-fairing-job', 
             push=True
         )
         
