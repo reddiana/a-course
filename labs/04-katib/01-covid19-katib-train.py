@@ -20,6 +20,25 @@ from minio import Minio
 from minio.error import ResponseError
 import argparse
 
+from tensorflow.python.keras.callbacks import Callback
+
+class KatibMetricLog(Callback):
+    def on_batch_end(self, batch, logs={}):
+        print(
+            "batch="    + str(batch),
+            "accuracy=" + str(logs.get('acc')),
+            "loss="     + str(logs.get('loss'))
+        )
+    def on_epoch_begin(self, epoch, logs={}):
+        print(
+            "epoch " + str(epoch) + ":"
+        )    
+    def on_epoch_end(self, epoch, logs={}):
+        print(
+            "Validation-accuracy=" + str(logs.get('val_acc')),
+            "Validation-loss="     + str(logs.get('val_loss'))
+        )
+        
 parser = argparse.ArgumentParser()
 parser.add_argument('--learning_rate', required=False, type=float, default=0.00001 )
 parser.add_argument('--dense'        , required=False, type=float, default=128     )
@@ -93,8 +112,14 @@ model.summary()
 
 # train the head of the network
 print("Training the full stack model...")
-# hist = model.fit(x_train, y_train, epochs=10, validation_data=(x_val, y_val), batch_size=8)
-hist = model.fit(x_train, y_train, epochs=3, validation_data=(x_val, y_val), batch_size=8)
+
+hist = model.fit(
+    x_train, y_train, 
+    epochs=3, 
+    validation_data=(x_val, y_val), 
+    batch_size=8,
+    callbacks=[KatibMetricLog()]    
+)
 
 loss         = hist.history['loss']
 accuracy     = hist.history['accuracy']
@@ -117,3 +142,4 @@ print(val_accuracy)
 # })  
 
 # model.save("s3://model/new-covid/1")
+
