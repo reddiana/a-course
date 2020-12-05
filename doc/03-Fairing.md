@@ -40,6 +40,15 @@ Dockerfile의 COPY, CMD 등에 해당.
 
 - function 
 
+  ``` python
+  def train():
+      ...
+      ...
+      
+  my_fairing_run = fairing.config.fn(train)
+  my_fairing_run()
+  ```
+
 - python
 
   ```python
