@@ -10,40 +10,103 @@ Version: 1.0.2
 
 
 
-[kubeflow/fairing: Python SDK for building, training, and deploying ML models (github.com)](https://github.com/kubeflow/fairing)
+공식 문서
 
-[Welcome to Kubeflow Fairing SDK API reference — Kubeflow Fairing v0.7.0 documentation (kubeflow-fairing.readthedocs.io)](https://kubeflow-fairing.readthedocs.io/en/latest/index.html)
+- [Overview of Kubeflow Fairing | Kubeflow](https://www.kubeflow.org/docs/components/fairing/fairing-overview/)
+- [kubeflow/fairing: Python SDK for building, training, and deploying ML models (github.com)](https://github.com/kubeflow/fairing)
+- [Welcome to Kubeflow Fairing SDK API reference — Kubeflow Fairing v0.7.0 documentation (kubeflow-fairing.readthedocs.io)](https://kubeflow-fairing.readthedocs.io/en/latest/index.html)
 
-[Kubeflow – Fairing – 지구별 여행자 (kangwoo.kr)](https://www.kangwoo.kr/2020/03/14/kubeflow-fairing/)
+정리된 blog
+
+- [Kubeflow – Fairing – 지구별 여행자 (kangwoo.kr)](https://www.kangwoo.kr/2020/03/14/kubeflow-fairing/)
+- [[Cloud\] Kubeflow | 머릿속에 안남으니 기록하자: (jx2lee.github.io)](https://jx2lee.github.io/cloud-kubeflow_fairing/)
 
 
 
-#### Preprocessor 
+# Fairing이란
 
-- **python** : 입력 파일을 컨테이너 이미지에 직접 복사합니다.
-- **notebook** : 노트북을 실행 가능한 파이썬 파일로 변환합니다. 그리고 노트북 코드에서 파이썬 코드가 아닌 부분을 제거합니다.
-- **full_notebook** : 파이썬 코드가 아닌 부분들을 포함해서 전체 노트북을 그대로 실행합니다. 별다른 설정이 없다면, 노트북 실행에 papermill을 사용합니다.
-- **function** : FunctionPreProcessor는 단일 함수를 전처리합니다. function_shim.py을 사용하여 함수를 직접 호출합니다.
+Kubeflow 환경에서 ML 모델을 손쉽게 학습-배포할 수 있는 Python Package
 
-#### Builder
+- python 으로 작성한 파일을 도커 이미지로 build / push
+- k8s API 서버 요청하여  Job, TFJob 등으로 실행
 
-- **append** : 기존 컨테이너 이미지를 바탕으로, 코드를 새 레이어로 추가합니다. 이 빌더는 기본 이미지를 가져 와서 이미지를 작성하지 않고, 추가된 부분만 컨테이너 이미지 레지스트리에 푸시합니다. 그래서 학습 작업을 위한 컨테이너 이미지를 작성하는 데 시간이 상대적으로 적게 소모됩니다. 그리고 파이썬 라이브러인 containerregistry을 사용하기 때문에, 도커 데몬이 필요 없습니다.
-- **docker** : 로컬 도커 데몬을 사용하여, 학습 작업에 사용할 컨테이너 이미지를 빌드하고, 컨테이너 이미지 레지스트리에 푸시합니다
-- **cluster** : 쿠버네티스 클러스터에서 학습 작업에 사용할 컨테이너 이미지를 빌드하고, 컨테이너 이미지 레지스트리에 푸시합니다
+# Fairing 실행 단계
 
-#### Deployer 
+### Preprocess
 
-- **Job** : 쿠버네티스 Job 리소스를 사용하여 학습 작업을 시작합니다.
-- **TfJob** : Kubeflow의 TFJob 컴포넌트를 사용하여 텐서플로우 학습 작업을 시작합니다. (예제: [fairing/main.py at master · kubeflow/fairing (github.com)](https://github.com/kubeflow/fairing/blob/master/examples/distributed-training/main.py))
-- **PyTorchJob** : Kubeflow의 PyTorchJob 컴포넌트를 사용하여 PyTorch 학습 작업을 시작합니다.
+Image를 빌드하고 Job으로 "실행시킬 대상"을 명시.
+
+Dockerfile의 COPY, CMD 등에 해당.
+
+- function 
+
+- python
+
+  ```python
+  fairing.config.set_preprocessor(
+      'python', 
+       command = ['python3'],  # default: python
+       input_files = ['00-python-file-to-fairing.py'],     
+  )
+  ```
+
+- notebook : Notebook을 python 파일로 변환하여 진행  (대상이 되는 Notebook 코드에서 python 코드가 아닌 부분을 제거)
+
+  ```python
+  fairing.config.set_preprocessor(
+      'notebook', 
+      notebook_file = '03-A-notebook-to-fairing.ipynb'
+  )
+  ```
+
+- full_notebook : Job에서 python 코드가 아닌 부분들을 포함해서 전체 Notebook을 그대로 실행. (Notebook 실행에 papermill을 사용)
+
+### Build
+
+Dockerizing 방법을 명시.
+
+Dockerfile의 FROM, docker build의 --tag 등에 해당.
+
+- **append** : 기존 컨테이너 이미지를 바탕으로, 코드를 새 레이어로 추가하고 push. Docker daemon을 사용하지 않음.
+
+  ```python
+  fairing.config.set_builder(
+      'append',
+      base_image = 'tensorflow/tensorflow:latest-py3',
+      registry   = 'kubeflow-registry.default.svc.cluster.local:30000',
+      image_name = 'my-fairing-job', 
+      push=True
+  )
+  ```
+
+- **docker** : Docker daemon을 사용하여, 이미지를 빌드
+
+- **cluster** : 구글 컨테이너 툴인 Kaniko 를 이용해 이미지를 빌드
+
+### Deploy
+
+이미지를 K8s에 배포하여 Job으로 실행
+
+kubectl run 또는 kubectl apply에 해당
+
+- Job : 쿠버네티스 Job 리소스를 사용
+
+  ```python
+  fairing.config.set_deployer(
+      'job',
+      namespace='myspace',
+      pod_spec_mutators=[
+          k8s_utils.get_resource_mutator(cpu=1, memory=5)
+      ]
+  )
+  ```
+
+- TfJob : Kubeflow의 TFJob 컴포넌트를 사용 (예제: [fairing/main.py at master · kubeflow/fairing (github.com)](https://github.com/kubeflow/fairing/blob/master/examples/distributed-training/main.py))
+
+- PyTorchJob : Kubeflow의 PyTorchJob 컴포넌트를 사용
+
 - **GCPJob** : GCP에게 학습 작업 보냅니다.
+
 - **Serving** : 쿠버네티스의 디플로이먼트(deployment)와 서비스(service)를 사용하여, 예측(prediction) 엔드포인트를 서빙합니다.
+
 - **KFServing** : KFServing을 사용하여, 예측(prediction) 엔드포인트를 서빙합니다.
-
-### 학습 작업 삭제하기
-
-작업이 완료되어도 Job은 삭제되지 않습니다.
-
-다음 명령어를 실행하면 admin 네임스페이스의 mnist-job-0a3bd86kp 라는 이름의 Job을 삭제할 수 있습니다.
-
-kubectl -n admin delete job mnist-job-0a3bd86kp

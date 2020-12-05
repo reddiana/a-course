@@ -15,20 +15,71 @@ https://github.com/kubeflow/fairing.git
 - [MinIO | The complete guide to the MinIO client](https://docs.min.io/docs/minio-client-complete-guide.html)
 
 ```
-wget https://dl.min.io/client/mc/release/linux-amd64/mc
-chmod +x mc
-mv mc /usr/bin
+#!/bin/bash
 
-mc config host add myminio http://minio-service.kubeflow:9000 minio minio123
-mc config host list
+echo '
+========================================
+Minio Cli 설치
+----------------------------------------
+'
+which mc || {
+    wget https://dl.min.io/client/mc/release/linux-amd64/mc && \
+    chmod +x mc && \
+    sudo mv mc /usr/bin 
+}    
 
-#mc rm --recursive --force myminio/dataset/covid-19/
+# mc config host add myminio http://minio-service.kubeflow:9000 minio minio123
+mc config host add mmm http://localhost:32001 minio minio123
+mc config host list myminio
 
-git clone https://github.com/sds-arch-cert/Covid19-X-Rays.git
-mc mb myminio/dataset
-mc cp -r Covid19-X-Rays/all/* myminio/dataset/covid-19/
+: '
+========================================
+Minio 레파지토리에 bucet 생성 함수
+----------------------------------------
+'
+function mkBucket() {
+    # mc rm -r --force $1
+    # mc rb $1
+    mc ls $1 || mc mb $1
+}
 
-mc tree myminio/
+echo '
+========================================
+Minio 레파지토리에 dataset bucet 생성
+----------------------------------------
+'
+mkBucket myminio/dataset
+
+echo '
+========================================
+Minio 레파지토리에 model bucet 생성
+----------------------------------------
+'
+mkBucket myminio/model
+
+echo '
+========================================
+mnist 데이터셋 다운로드
+----------------------------------------
+'
+rm -f mnist.npz
+wget https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz
+
+echo '
+========================================
+mnist 데이터셋을 Minio에 업로드
+----------------------------------------
+'
+mc mv mnist.npz myminio/dataset/mnist/
+echo
+
+echo '
+========================================
+완료
+----------------------------------------
+'
+# mc tree myminio/dataset
+# mc tree myminio/model
 ```
 
 ```
@@ -108,6 +159,10 @@ img = mpimg.imread(file_stream)
 
 
 # Pipeline
+
+
+
+
 
 # KFServing
 
