@@ -6,19 +6,38 @@ metadata:
     controller-tools.k8s.io: "1.0"
   name: covid19-experiment-1
 spec:
-  parallelTrialCount: 1  
-  maxTrialCount: 3
-  maxFailedTrialCount: 3
-  objective:
-    type: maximize
-    goal: 0.99  
-    objectiveMetricName: Validation-accuracy
-    additionalMetricNames:
-      - accuracy
-      - loss
-      - Validation-loss
   algorithm:
     algorithmName: random
+    algorithmSettings:
+    - name: random_state
+      value: '42'
+  maxFailedTrialCount: 3
+  maxTrialCount: 3
+  objective:
+    additionalMetricNames:
+    - loss
+    - valloss
+    - valaccuracy
+    goal: 99
+    objectiveMetricName: accuracy
+    type: minimize
+  parallelTrialCount: 1
+  parameters:
+  - feasibleSpace:
+      list:
+      - '0.001'
+      - '0.0001'
+      - '0.0003'
+      - '0.00001'
+      - '0.00003'
+    name: LEARNING_RATE
+    parameterType: categorical
+  - feasibleSpace:
+      max: '200'
+      min: '50'
+      step: '10'
+    name: DENSE
+    parameterType: int
   trialTemplate:
     goTemplate:
         rawTemplate: |-
@@ -45,14 +64,3 @@ spec:
                     limits:
                       nvidia.com/gpu: 0
                 restartPolicy: Never
-  parameters:
-    - name: --learning_rate         # hyper paramenters and it's ranges
-      parameterType: double
-      feasibleSpace:
-        min: "0.0001"
-        max: "0.001"
-    - name: --dense
-      parameterType: int
-      feasibleSpace:
-        min: "50"
-        max: "100"
