@@ -5,10 +5,10 @@ USER root
 RUN apt-get update 
 
 # TODO 지울 것
-RUN apt-get install -y dnsutils
+RUN apt-get install -y dnsutils curl less wget
 
 # opencv에서 사용
-RUN apt-get install -y ffmpeg libsm6 libxext6
+RUN apt-get install -y ffmpeg libsm6 libxext6 
 
 RUN pip install --upgrade --no-cache-dir pip
 
@@ -21,8 +21,9 @@ RUN pip install --upgrade --no-cache-dir \
                 kubeflow-katib \
                 kfp \
                 kfserving \
-                minio \
-                jupyterlab 
+                minio 
+# Kale 0.5.0에 맞추느라 jupyterlab 최신버전 포기
+#                jupyterlab 
 
 RUN pip install --upgrade --no-cache-dir \
                 ipython-sql \
@@ -30,7 +31,8 @@ RUN pip install --upgrade --no-cache-dir \
                 scikit-learn \
                 opencv-python \
                 matplotlib \
-                seaborn 
+                seaborn \
+                imutils
 
 # https://github.com/lckr/jupyterlab-variableInspector
 RUN jupyter labextension install @lckr/jupyterlab_variableinspector
@@ -39,15 +41,21 @@ RUN jupyter labextension install @lckr/jupyterlab_variableinspector
 RUN jupyter labextension install @jupyterlab/toc 
 
 # https://github.com/deshaw/jupyterlab-execute-time
-RUN jupyter labextension install jupyterlab-execute-time
+# RUN jupyter labextension install jupyterlab-execute-time
 
 # https://github.com/jupyterlab/jupyterlab-git
 RUN pip install --upgrade --no-cache-dir jupyterlab-git && \
     jupyter lab build --debug
 
 # https://github.com/kubeflow-kale/kale.git
-RUN pip install kubeflow-kale && \
-    jupyter labextension install kubeflow-kale-labextension --debug 
+# Kale-Katip 실행 문제로 버전 다운그레이드
+RUN pip install kubeflow-kale==0.5.0 && \
+    jupyter labextension install kubeflow-kale-labextension@0.5.0 --debug 
+# RUN pip install kubeflow-kale && \
+#     jupyter labextension install kubeflow-kale-labextension --debug 
+
+# 2.3.1에서 model save s3:// 문제 발생
+RUN pip install tensorflow==2.1.0
 
 # Bash를 기본 쉘로
 ENV SHELL /bin/bash
