@@ -41,7 +41,7 @@ class MyFashionMnist(object):
     print('Test accuracy: ', score[1])
 
 
-# In[5]:
+# In[7]:
 
 
 if __name__ == '__main__':
@@ -51,10 +51,10 @@ if __name__ == '__main__':
         
         PRIVATE_REGISTRY = 'kubeflow-registry.default.svc.cluster.local:30000'
         
-        fairing.config.set_preprocessor(
-            'notebook', 
-            command = ['haha'],  # default: python
-        )
+#         fairing.config.set_preprocessor(
+#             'notebook', 
+#             command = ['haha'],  # default: python
+#         )
         
         fairing.config.set_builder(
             'append',
