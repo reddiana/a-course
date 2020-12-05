@@ -34,7 +34,7 @@ spec:
                 - name: {{.Trial}}
                   image: kubeflow-registry.default.svc.cluster.local:30000/covid19-katib-job:latest
                   command: 
-                  - "python"
+                  - "python3"
                   - "/app/01-covid19-katib-train.py"
                   {{- with .HyperParameters}}
                   {{- range .}}
