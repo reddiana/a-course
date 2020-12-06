@@ -41,7 +41,7 @@ class MyFashionMnist(object):
     print('Test accuracy: ', score[1])
 
 
-# In[2]:
+# In[ ]:
 
 
 if __name__ == '__main__':
