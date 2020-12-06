@@ -25,10 +25,27 @@ Version: 1.0.2
 
 # Fairing이란
 
-Kubeflow 환경에서 ML 모델을 손쉽게 학습-배포할 수 있는 Python Package
+Kubeflow 환경에서 ML 모델을 손쉽게 배포/실행할 수 있는 Python Package
 
 - python 으로 작성한 파일을 도커 이미지로 build / push
-- k8s API 서버 요청하여  Job, TFJob 등으로 실행
+- k8s API 서버 요청하여  Job, TFJob 등으로 배포 / 실행
+
+![Satellite primed for launch to survey oceans, ice sheets – Spaceflight Now](../images/03-Fairing/Sentinel-3_on_the_ROCKOT_launcher_node_full_image_2.jpg
+
+![ESA - Mission control ready for Gaia launch](../images/03-Fairing/Gaia_launch_pillars.jpg)
+
+[Payload fairing - Wikipedia](https://en.wikipedia.org/wiki/Payload_fairing)
+
+# 장단점
+
+### 장점
+
+- 간편하게 Image를 build 하고 Docker registry에 push
+- Image를 간편하게 K8s에 Job, TFJob 등으로 배포 / 실행
+
+### 단점
+
+- Image에 추가 패키지/모듈 설치가 어려워 잘 준비된 Base Image가 필요
 
 # Fairing 실행 단계
 
