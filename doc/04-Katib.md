@@ -16,7 +16,7 @@ TAG=haha:hoho
 cat << EOF | docker build -t $TAG -f - . 
 FROM brightfly/kubeflow-jupyter-lab:tf2.0-gpu
 COPY 01-1-fashion-mnist-katib-train.py /app/
-CMD ['python', '/app/01-1-fashion-mnist-katib-train.py']
+CMD ['python', '/app/01-fashion-mnist-katib-train.py']
 EOF
 
 docker push $TAG
